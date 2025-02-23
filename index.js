@@ -42,6 +42,7 @@ async function run() {
 
 
         const userCollection = client.db("TutorHive").collection("users");
+        const tutorialsCollection = client.db("TutorHive").collection("tutorials");
 
 
         // jwt related api
@@ -68,7 +69,41 @@ async function run() {
             })
         }
 
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            // insert email if user doesnt exists: 
+            // you can do this many ways (1. email unique, 2. upsert 3. simple checking)
+            const query = { email: user.email }
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
+
+        // get all the users
+
+        app.get('/users', verifyToken, async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        });
        
+        app.post('/tutorials', async (req, res) => {
+            const tutorial = req.body;
+            const result = await tutorialsCollection.insertOne(tutorial);
+            console.log(result);
+            res.send(result);
+        });
+
+        // get all the users
+
+        // app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+        //     const result = await userCollection.find().toArray();
+        //     res.send(result);
+        // });
+
 
 
 
