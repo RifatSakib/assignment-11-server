@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 // https://expressjs.com/en/starter/basic-routing.html
 
