@@ -99,11 +99,27 @@ async function run() {
 
         // get all the users
 
-        // app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
-        //     const result = await userCollection.find().toArray();
-        //     res.send(result);
+        app.get('/tutorials',  async (req, res) => {
+            const result = await tutorialsCollection.find().toArray();
+            res.send(result);
+        });
+
+        // app.get('/tutorials/:category',  async (req, res) => {
+        //     const category = req.params.category;
+        //     const result = await tutorialsCollection.find({language: category}).toArray();
+        //      res.send(result);
         // });
 
+        app.get('/tutorials/:category', async (req, res) => {
+            const category = req.params.category;
+            try {
+                const result = await tutorialsCollection.find({ language: category }).toArray();
+                res.send(result);
+            } catch (error) {
+                console.error('Error fetching tutorials by category:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
 
 
 
