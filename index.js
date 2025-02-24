@@ -43,6 +43,7 @@ async function run() {
 
         const userCollection = client.db("TutorHive").collection("users");
         const tutorialsCollection = client.db("TutorHive").collection("tutorials");
+        const tutorCollection = client.db("TutorHive").collection("tutor");
 
 
         // jwt related api
@@ -110,7 +111,7 @@ async function run() {
         //      res.send(result);
         // });
 
-        app.get('/tutorials/:category', async (req, res) => {
+        app.get('/tutorials/:category',  async (req, res) => {
             const category = req.params.category;
             try {
                 const result = await tutorialsCollection.find({ language: category }).toArray();
@@ -121,6 +122,21 @@ async function run() {
             }
         });
 
+
+        app.post('/tutor', async (req, res) => {
+            const tutor = req.body;
+            const result = await tutorCollection.insertOne(tutor);
+            console.log(result);
+            res.send(result);
+        });
+
+
+        app.get('/tutor/:id',  async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await tutorialsCollection.findOne(query);
+            res.send(result);
+        });
 
 
     } finally {
