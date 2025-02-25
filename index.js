@@ -86,7 +86,7 @@ async function run() {
 
         // get all the users
 
-        app.get('/users', verifyToken, async (req, res) => {
+        app.get('/users',  async (req, res) => {
             const result = await userCollection.find().toArray();
             res.send(result);
         });
@@ -238,15 +238,15 @@ async function run() {
         });
 
 
-        app.get('/tutor/languages/count', async (req, res) => {
-            try {
-                const uniqueLanguages = await tutorialsCollection.distinct("language");
-                res.send({ totalLanguages: uniqueLanguages.length });
-            } catch (error) {
-                console.error('Error fetching language count:', error);
-                res.status(500).send('Internal Server Error');
-            }
-        });
+        // app.get('/tutor/languages/count', async (req, res) => {
+        //     try {
+        //         const uniqueLanguages = await tutorialsCollection.distinct("language");
+        //         res.send({ totalLanguages: uniqueLanguages.length });
+        //     } catch (error) {
+        //         console.error('Error fetching language count:', error);
+        //         res.status(500).send('Internal Server Error');
+        //     }
+        // });
         
 
     } finally {
