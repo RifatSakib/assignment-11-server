@@ -71,7 +71,7 @@ async function run() {
         }
 
 
-        app.post('/users', async (req, res) => {
+        app.post('/users',verifyToken, async (req, res) => {
             const user = req.body;
             // insert email if user doesnt exists: 
             // you can do this many ways (1. email unique, 2. upsert 3. simple checking)
@@ -91,7 +91,7 @@ async function run() {
             res.send(result);
         });
        
-        app.post('/tutorials', async (req, res) => {
+        app.post('/tutorials', verifyToken, async (req, res) => {
             const tutorial = req.body;
             const result = await tutorialsCollection.insertOne(tutorial);
             console.log(result);
@@ -100,7 +100,7 @@ async function run() {
 
         // get all the users
 
-        app.get('/tutorials',  async (req, res) => {
+        app.get('/tutorials', verifyToken, async (req, res) => {
             const result = await tutorialsCollection.find().toArray();
             res.send(result);
         });
@@ -111,7 +111,7 @@ async function run() {
         //      res.send(result);
         // });
 
-        app.get('/tutorials/:category',  async (req, res) => {
+        app.get('/tutorials/:category',  verifyToken,async (req, res) => {
             const category = req.params.category;
             try {
                 const result = await tutorialsCollection.find({ language: category }).toArray();
@@ -122,8 +122,22 @@ async function run() {
             }
         });
 
+        
+        app.get('/tutorials/email/:email',  verifyToken,async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await tutorialsCollection.find({ email: email }).toArray();
+                res.send(result);
+            } catch (error) {
+                console.error('Error fetching tutorials by category:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+       
 
-        app.post('/tutor', async (req, res) => {
+       
+
+        app.post('/tutor', verifyToken, async (req, res) => {
             const tutor = req.body;
             const result = await tutorCollection.insertOne(tutor);
             console.log(result);
@@ -131,13 +145,63 @@ async function run() {
         });
 
 
-        app.get('/tutor/:id',  async (req, res) => {
+        app.get('/tutor/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await tutorialsCollection.findOne(query);
             res.send(result);
         });
 
+
+
+
+        app.get('/tutor', verifyToken, async (req, res) => {
+            const result = await tutorCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.patch('/tutorials/review/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $inc: { review: 1 } 
+            };
+            const result = await tutorialsCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
+
+
+        app.delete('/tutorials/delete/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await tutorialsCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get('/tutorials/update/:id',verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await tutorialsCollection.findOne(query);
+            res.send(result);
+        });
+
+
+        app.put('/tutorials/update/:id', verifyToken,async (req, res) => {
+            const id = req.params.id;
+
+            // https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
+
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: req.body
+            }
+
+            const result = await tutorialsCollection.updateOne(filter, updatedDoc, options)
+            console.log(result)
+            res.send(result);
+        })
 
     } finally {
         // Ensures that the client will close when you finish/error
