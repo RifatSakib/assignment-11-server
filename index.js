@@ -71,7 +71,7 @@ async function run() {
         }
 
 
-        app.post('/users',verifyToken, async (req, res) => {
+        app.post('/users', async (req, res) => {
             const user = req.body;
             // insert email if user doesnt exists: 
             // you can do this many ways (1. email unique, 2. upsert 3. simple checking)
@@ -100,7 +100,7 @@ async function run() {
 
         // get all the users
 
-        app.get('/tutorials', verifyToken, async (req, res) => {
+        app.get('/tutorials',  async (req, res) => {
             const result = await tutorialsCollection.find().toArray();
             res.send(result);
         });
@@ -159,6 +159,22 @@ async function run() {
             const result = await tutorCollection.find().toArray();
             res.send(result);
         });
+
+        
+        app.get('/tutor/email/:email',  verifyToken,async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await tutorCollection.find({ email: email }).toArray();
+                res.send(result);
+            } catch (error) {
+                console.error('Error fetching tutorials by category:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
+
+
+
 
         app.patch('/tutorials/review/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
