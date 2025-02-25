@@ -219,6 +219,36 @@ async function run() {
             res.send(result);
         })
 
+
+
+
+
+
+        app.get('/reviews/count', async (req, res) => {
+            try {
+                const totalReviews = await tutorialsCollection.aggregate([
+                    { $group: { _id: null, total: { $sum: "$review" } } }
+                ]).toArray();
+        
+                res.send({ totalReviews: totalReviews[0]?.total || 0 });
+            } catch (error) {
+                console.error('Error fetching review count:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
+
+        app.get('/tutor/languages/count', async (req, res) => {
+            try {
+                const uniqueLanguages = await tutorialsCollection.distinct("language");
+                res.send({ totalLanguages: uniqueLanguages.length });
+            } catch (error) {
+                console.error('Error fetching language count:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+        
+
     } finally {
         // Ensures that the client will close when you finish/error
         //   await client.close();
